@@ -6,6 +6,7 @@ import pywhatkit
 import datetime
 import wikipedia
 import wolframalpha
+dictionary = {}
 engine = pyttsx3.init()
 app_id = 'Y8TXRK-37X64HY7R4'
 
@@ -43,6 +44,20 @@ def player():
         info = wikipedia.summary(person, 1)
         print(info)
         reply(person + 'is' + info)
+    elif "save a number" in command:
+        reply('okay! what is the number')
+        value = run_command()
+        reply('save the number as?')
+        key = run_command()
+        
+        dictionary[key] = value
+        reply('okay done!')
+        print('number ' + value + 'saved as ' + key)
+        reply('number' + value + 'saved as' + key)
+        
+    elif "message" in command:
+        pywhatkit.sendwhatmsg('+19057820827','Hello! I am Jarvis',1,40)
+        reply('okay message sent!')    
     else:
         client = wolframalpha.Client(app_id)
         res = client.query(command)
@@ -50,9 +65,9 @@ def player():
         reply(answer)
         print(answer)
 
-starter = run_command()
+command = run_command()
 
-while 'bixby' not in starter:
+while 'bixby' not in command:
        run_command()
 else:
     reply('Hi! how can i help you today?')
