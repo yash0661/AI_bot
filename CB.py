@@ -1,4 +1,8 @@
-import playsound
+import requests
+from bs4 import BeautifulSoup
+from pydub import AudioSegment
+from pydub.playback import play
+from playsound import playsound
 from click import command
 import speech_recognition as sr
 import pyttsx3
@@ -12,6 +16,9 @@ import pyjokes
 dictionary = {}
 engine = pyttsx3.init()
 app_id = 'Y8TXRK-37X64HY7R4'
+#song = AudioSegment.from_mp3("C:\\Users\\Yash soni\\Desktop\\chatbot\\Rakh Teri Maa Ka - Hera pheri.mp3")
+
+
 
 
 def reply(text):
@@ -82,7 +89,7 @@ def player():
         reply(joker)
         
     
-    elif "alarm" or "timer" in command:
+    elif "alarm" in command:
         if "alarm" in command:
             reply('Okay! go on...')
             alarmH = int(input('at what hours: '))
@@ -97,73 +104,59 @@ def player():
                 while True:
                     if(alarmH == datetime.now().hour and alarmM == datetime.now().minute):
                         print('Time to wake up')
-                        reply('beep beep')
-                        playsound("F:\New folder\Rakh Teri Maa Ka - Hera pheri.mp3")
+                        #take a note when you want to play an mp3 file in python with playsound library
+                        #try to add double backshlash in your whole path as done below
+                        #otherwise it will throw unicode error!
+                        playsound("C:\\Users\\Yash soni\\Desktop\\chatbot\\Rakh Teri Maa Ka - Hera pheri.mp3\\")
                         break
             else:    
                 while True:
                     if(alarmH == datetime.now().hour and alarmM == datetime.now().minute):
                         print('Time to wake up')
-                        reply('beep beep')
-                        break        
-        elif "timer" in command:
-            reply("for what time dear!")
-            time = int(input("for how many minutes: "))
-            timer = datetime.now().minute + time
-            if datetime.now().minute == timer:
-                print('time is up buddy!')
-
-            
-            '''if "hour" in time:
-                time = time.replace('hours','')
-                converter = int(time)
-                timerH = datetime.now().hour + converter
-                while True:
-                 if datetime.now().hour == timerH :
-                    print("Time's UP!")
-            if "minute" in time:
-                time = time.replace("minute","")
-                converter = int(time)
-                timerM = datetime.now().minute + converter
-                while True:
-                 if datetime.now().minute == timerM :
-                    print("Time's UP!")
-            elif "seconds" in time:
-                time = time.replace('seconds',"")
-                converter = int(time)
-                timerS = datetime.now().second + converter
-                while True:
-                 if datetime.now().second == timerS :
-                    print("Time's UP!") '''
-            
-
-            
-
-        
-#have a look on this else statement please!
-    else:
-        if 'bye' in command:
-            reply('see ya, have a great one')
-
-        elif command not in ' ' :
-            client = wolframalpha.Client(app_id)
-            res = client.query(command)
-            answer = next(res.results).text
-            reply(answer)
+                        playsound("C:\\Users\\Yash soni\\Desktop\\chatbot\\Rakh Teri Maa Ka - Hera pheri.mp3")
+                        break
+    #this part is not working
+    elif "temperature" in command:
+        search = "temprature in toronto"
+        url = f"https://www-google.com/search?q={search}"
+        r = requests.get(url)
+        data = BeautifulSoup(r.text,"html.parser")
+        temp = data.find("div",class_ = "BNeawe").text
+        print("current temprature is " + temp)
+    elif "going out" in command:
+        question = "temprature"
+        client =wolframalpha.Client(app_id)
+        res = client.query(question)  
+        answer = next(res.results).text
+        if answer <= '0':
             print(answer)
+            reply("The temprature is " + answer + " please wear a jacket its cold outside!")
         else:
-            reply('Is there anything else i can help you?') 
-            player()   
+            reply(answer)
+            reply("Have a nice day champ!")
+                        
+        
+
+    elif "search" in command:
+        reply('Okay! ask me..')
+        question = run_command()
+        client = wolframalpha.Client(app_id)
+        res = client.query(question)
+        answer = next(res.results).text
+        reply(answer)
+        print(answer)
+           
 
 
 while True:
     command = run_command()
-    if 'sara' in command:
+    if 'sara' not in command:
+        run_command()
+    else:
         if greet_inputs in command:
             reply(random.choice(greet_outputs))
             player()
-        else:
-            run_command()    
+        
     
 
 
