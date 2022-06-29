@@ -1,3 +1,6 @@
+#imported libraries needed to operate the different functions added in the assistant
+import json
+import pickle
 import requests
 from bs4 import BeautifulSoup
 from pydub import AudioSegment
@@ -14,11 +17,31 @@ import wolframalpha
 import random
 import pyjokes
 dictionary = {}
+pickle_out = open("data.py","wb")
+pickle_in = open("data.py","rb")
 engine = pyttsx3.init()
 app_id = 'Y8TXRK-37X64HY7R4'
 #song = AudioSegment.from_mp3("C:\\Users\\Yash soni\\Desktop\\chatbot\\Rakh Teri Maa Ka - Hera pheri.mp3")
 
+#creating a filename variable for the feature of storing notes! this variable has json file connected.
+filename = "./data/notesdata.json"
+#A function for reading the data in the json file.
+def view_data():
+    
+    with open(filename, 'r') as f:
+        temp = json.load(f)
+        for entry in temp:
+            print(entry)
 
+#creating a function to add data to your database
+def add_data(notes):
+    item_data = {}
+    with open(filename, "r") as f:
+        temp = json.load(f)
+        item_data["notes"] = notes
+        temp.append(item_data)
+        with open(filename, 'w') as f:
+            json.dump(temp, f)
 
 
 def reply(text):
@@ -47,7 +70,7 @@ def run_command():
 
 greet_inputs = "hi"
 greet_outputs = ["Hi","hello","hi, howz it going?","hi, nice to see you again!"]
-       
+   
          
 
 
@@ -58,6 +81,12 @@ def player():
         print('playing ' + song)
         reply('playing' + song)
         pywhatkit.playonyt(song)
+#this feature lets you add notes for daily grocery stuff
+    elif "add" in command:
+        notes = command.replace("add", ' ')
+        add_data(notes)
+        reply("Okay its added")
+        view_data()
 
     elif "who is " in command:
         person = command.replace('who is ','')
@@ -71,7 +100,10 @@ def player():
         key = run_command()
         
         dictionary[key] = value
+        pickle.dump(dictionary,pickle_out)
+        #pickle_out.close()
         reply('okay done!')
+        print(dictionary)
         print('number ' + value + 'saved as ' + key)
         reply('number' + value + 'saved as' + key)
         
@@ -80,8 +112,11 @@ def player():
         reply('okay message sent!')
     elif "call" in command:
         command = command.replace('call','')
-        print(dictionary[command])
-        reply('okay callin' + dictionary[command])   
+        #call = str(command)
+        d_dictionary = pickle.load(pickle_in)
+        
+        print(d_dictionary)
+        #reply('okay callin' + dictionary[call])   
     elif 'joke' in command:
         reply('sure why not!')
         joker = pyjokes.get_joke()
@@ -132,19 +167,34 @@ def player():
             print(answer)
             reply("The temprature is " + answer + " please wear a jacket its cold outside!")
         else:
+            view_data()
             reply(answer)
             reply("Have a nice day champ!")
                         
         
 
-    elif "search" in command:
-        reply('Okay! ask me..')
-        question = run_command()
-        client = wolframalpha.Client(app_id)
-        res = client.query(question)
-        answer = next(res.results).text
-        reply(answer)
-        print(answer)
+        '''elif "search" in command:
+            reply('Okay! ask me..')
+            question = run_command()
+            client = wolframalpha.Client(app_id)
+            res = client.query(question)
+            answer = next(res.results).text
+            reply(answer)
+            print(answer)'''
+
+    else: 
+        #this commands needs to be organised properly
+        if command == '':
+            reply("unable to get you!")
+        else:
+            question = run_command()
+            client = wolframalpha.Client(app_id)
+            res = client.query(question)
+            answer = next(res.results).text
+            reply(answer)
+            print(answer)
+
+
            
 
 
