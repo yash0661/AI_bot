@@ -21,10 +21,12 @@ pickle_out = open("data.py","wb")
 pickle_in = open("data.py","rb")
 engine = pyttsx3.init()
 app_id = 'Y8TXRK-37X64HY7R4'
-#song = AudioSegment.from_mp3("C:\\Users\\Yash soni\\Desktop\\chatbot\\Rakh Teri Maa Ka - Hera pheri.mp3")
+
 
 #creating a filename variable for the feature of storing notes! this variable has json file connected.
 filename = "./data/notesdata.json"
+# a json database file for adding numbers to database.
+numfile = "./data/numbers.json"
 #A function for reading the data in the json file.
 def view_data():
     
@@ -43,6 +45,21 @@ def add_data(notes):
         with open(filename, 'w') as f:
             json.dump(temp, f)
 
+#creating a function to add phone numbers to a different database
+
+def add_number(value):
+            add_num = {}
+            with open(numfile, 'r') as x:
+                tempo = json.load(x)
+                reply('Save the number as?')
+                name = run_command()
+                add_num[name] = value
+                tempo.append(add_num)
+                with open (numfile, 'w') as y:
+                    json.dump(tempo, y)
+                reply("okay your number is saved")
+                
+
 
 def reply(text):
     engine.say(text)
@@ -59,8 +76,6 @@ def run_command():
             command = listener.recognize_google(voice)
             command = command.lower()
             print(command)
-            #if 'bixby' in command:
-             #   command = command.replace('bixby',' ')
             return command
     except:
         reply('oops! unable to get you!')
@@ -76,6 +91,7 @@ greet_outputs = ["Hi","hello","hi, howz it going?","hi, nice to see you again!"]
 
 def player():
     command = run_command()
+#this feature will play videos on youtube
     if 'play' in command:
         song = command.replace('play','')
         print('playing ' + song)
@@ -87,29 +103,23 @@ def player():
         add_data(notes)
         reply("Okay its added")
         view_data()
-
+#a feature to connect wikipedia
     elif "who is " in command:
         person = command.replace('who is ','')
         info = wikipedia.summary(person, 1)
         print(info)
         reply(person + 'is' + info)
+#saves a number to json database, function for which is created above.
     elif "save a number" in command:
         reply('okay! what is the number')
         value = run_command()
-        reply('save the number as?')
-        key = run_command()
-        
-        dictionary[key] = value
-        pickle.dump(dictionary,pickle_out)
-        #pickle_out.close()
-        reply('okay done!')
-        print(dictionary)
-        print('number ' + value + 'saved as ' + key)
-        reply('number' + value + 'saved as' + key)
-        
+        add_number()
+#whatsapp messaging feature, only thing to consider is you will have to use whatsapp web        
     elif "message" in command:
         pywhatkit.sendwhatmsg('+19057820827','Hello! I am Jarvis',1,40)
         reply('okay message sent!')
+
+#recreate the function using json database method
     elif "call" in command:
         command = command.replace('call','')
         #call = str(command)
@@ -117,13 +127,14 @@ def player():
         
         print(d_dictionary)
         #reply('okay callin' + dictionary[call])   
+#feature created with pyjokes, for just programming jokes.
     elif 'joke' in command:
         reply('sure why not!')
         joker = pyjokes.get_joke()
         print(joker)
         reply(joker)
         
-    
+#alarm and timer system created just for you on your speaking commands    
     elif "alarm" in command:
         if "alarm" in command:
             reply('Okay! go on...')
@@ -142,22 +153,15 @@ def player():
                         #take a note when you want to play an mp3 file in python with playsound library
                         #try to add double backshlash in your whole path as done below
                         #otherwise it will throw unicode error!
-                        playsound("C:\\Users\\Yash soni\\Desktop\\chatbot\\Rakh Teri Maa Ka - Hera pheri.mp3\\")
+                        reply("Time's up for whatever you are doing!")
                         break
             else:    
                 while True:
                     if(alarmH == datetime.now().hour and alarmM == datetime.now().minute):
                         print('Time to wake up')
-                        playsound("C:\\Users\\Yash soni\\Desktop\\chatbot\\Rakh Teri Maa Ka - Hera pheri.mp3")
+                        reply("Time's up for whatever you are doing!")
                         break
-    #this part is not working
-    elif "temperature" in command:
-        search = "temprature in toronto"
-        url = f"https://www-google.com/search?q={search}"
-        r = requests.get(url)
-        data = BeautifulSoup(r.text,"html.parser")
-        temp = data.find("div",class_ = "BNeawe").text
-        print("current temprature is " + temp)
+#this feature not only tells you what the weather is but also gives you the grocery list to bring while you go out.    
     elif "going out" in command:
         question = "temprature"
         client =wolframalpha.Client(app_id)
@@ -166,6 +170,7 @@ def player():
         if answer <= '0':
             print(answer)
             reply("The temprature is " + answer + " please wear a jacket its cold outside!")
+            view_data()
         else:
             view_data()
             reply(answer)
@@ -187,6 +192,7 @@ def player():
         if command == '':
             reply("unable to get you!")
         else:
+        #this else statement contains wolframalpha's API for everything else you need ;)
             question = run_command()
             client = wolframalpha.Client(app_id)
             res = client.query(question)
@@ -212,16 +218,6 @@ while True:
 
     
 
-
-'''def wolfram():
-    print('AI activated....')
-    command = run_command()
-    question = command
-    client = wolframalpha.Client(app_id)
-    res = client.query(question)
-    answer = next(res.results).text
-    reply(answer)
-    print(answer)'''
 
 
 
